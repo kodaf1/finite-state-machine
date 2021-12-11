@@ -17,6 +17,10 @@ func (s Start) Next(n rune) (State, error) {
 		return SymbolA{}, nil
 	case 'b':
 		return SymbolB{}, nil
+	case 'c':
+		return SymbolC{}, nil
+	case 'd':
+		return SymbolD{}, nil
 	default:
 		return nil, errors.New("incorrect syntax")
 	}

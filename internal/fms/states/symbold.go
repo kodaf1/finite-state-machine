@@ -8,7 +8,7 @@ type SymbolD struct {
 }
 
 func (s SymbolD) IsFinal() bool {
-	return false
+	return true
 }
 
 func (s SymbolD) Next(n rune) (State, error) {
