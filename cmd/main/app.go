@@ -3,10 +3,10 @@ package main
 import (
 	"bufio"
 	"github.com/kodaf1/finite-state-machine/internal/fms"
+	"github.com/kodaf1/finite-state-machine/internal/fms/states"
 	"io"
 	"log"
 	"os"
-	"reflect"
 	"strings"
 )
 
@@ -29,11 +29,16 @@ func main() {
 		}
 		cmd = strings.TrimSpace(cmd)
 
-		state, err := fms.Run(cmd)
-		log.Printf(
-			"%d test returns %t where last state is %v",
-			i,
-			err == nil && state.IsFinal(),
-			reflect.TypeOf(state))
+		result, err := fms.PartialRun(cmd)
+		presentationMap := make(map[string]string)
+		for k, v := range result {
+			presentationMap[states.GetStateName(k)] = states.GetStateName(v)
+		}
+		log.Printf("%s => %v", cmd, presentationMap)
+		//log.Printf(
+		//	"%d test returns %t where last state is %v",
+		//	i,
+		//	err == nil && state.IsFinal(),
+		//	reflect.TypeOf(state))
 	}
 }
