@@ -1,5 +1,9 @@
 package states
 
+func GetStartState() State {
+	return Start{}
+}
+
 func GetAllStartStates() []State {
 	return []State{
 		Start{},

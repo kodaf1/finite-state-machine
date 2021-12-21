@@ -1,6 +1,9 @@
 package fms
 
-import "github.com/kodaf1/finite-state-machine/internal/fms/states"
+import (
+	"github.com/kodaf1/finite-state-machine/internal/fms/states"
+	"github.com/kodaf1/finite-state-machine/internal/storage"
+)
 
 func Run(cmd string) (states.State, error) {
 	var state states.State
@@ -17,11 +20,15 @@ func Run(cmd string) (states.State, error) {
 	return state, nil
 }
 
-func PartialRun(cmd string) (map[states.State]states.State, error) {
-	result := make(map[states.State]states.State, 0)
+func PartialRun(cmd string, isStart bool) storage.Data {
+	result := storage.Data{}
 
-	for _, v := range states.GetAllStartStates() {
-		result[v] = v
+	if isStart {
+		result[states.GetStartState()] = states.GetStartState()
+	} else {
+		for _, v := range states.GetAllStartStates() {
+			result[v] = v
+		}
 	}
 
 	for _, symbol := range cmd {
@@ -36,5 +43,5 @@ func PartialRun(cmd string) (map[states.State]states.State, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }
