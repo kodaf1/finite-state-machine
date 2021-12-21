@@ -1,9 +1,5 @@
 package states
 
-import (
-	"errors"
-)
-
 type SymbolB struct {
 }
 
@@ -11,13 +7,13 @@ func (s SymbolB) IsFinal() bool {
 	return false
 }
 
-func (s SymbolB) Next(n rune) (State, error) {
+func (s SymbolB) Next(n rune) State {
 	switch n {
 	case 'b':
-		return SymbolB{}, nil
+		return SymbolB{}
 	case 'c':
-		return SymbolC{}, nil
+		return SymbolC{}
 	default:
-		return nil, errors.New("incorrect syntax")
+		return Error{}
 	}
 }

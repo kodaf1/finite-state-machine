@@ -5,19 +5,14 @@ import (
 	"github.com/kodaf1/finite-state-machine/internal/storage"
 )
 
-func Run(cmd string) (states.State, error) {
-	var state states.State
-	state = states.Start{}
+func Run(cmd string) states.State {
+	state := states.GetStartState()
 
 	for _, c := range cmd {
-		newState, err := state.Next(c)
-		if err != nil {
-			return state, err
-		}
-		state = newState
+		state = state.Next(c)
 	}
 
-	return state, nil
+	return state
 }
 
 func PartialRun(cmd string, isStart bool) storage.Data {
@@ -33,13 +28,10 @@ func PartialRun(cmd string, isStart bool) storage.Data {
 
 	for _, symbol := range cmd {
 		for key, actualState := range result {
-			newState, err := actualState.Next(symbol)
-			if err != nil {
+			result[key] = actualState.Next(symbol)
+			if result[key] == states.GetErrorState() {
 				delete(result, key)
-				continue
 			}
-
-			result[key] = newState
 		}
 	}
 

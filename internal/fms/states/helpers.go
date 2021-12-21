@@ -4,6 +4,10 @@ func GetStartState() State {
 	return Start{}
 }
 
+func GetErrorState() State {
+	return Error{}
+}
+
 func GetAllStartStates() []State {
 	return []State{
 		Start{},
@@ -29,6 +33,8 @@ func GetStateName(state State) string {
 		return "D"
 	case SymbolE{}:
 		return "E"
+	case Error{}:
+		return "Syntax Error"
 	default:
 		return "unknown"
 	}

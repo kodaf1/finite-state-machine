@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-const PROCS = 4
+const PROCS = 10
 
 func main() {
 	runtime.GOMAXPROCS(PROCS) // control amount of procs. default - # of logical processor you have.
@@ -25,7 +25,7 @@ func main() {
 
 	reader := bufio.NewReader(data)
 
-	for i := 0; ; i++ {
+	for i := 1; ; i++ {
 		cmd, err := reader.ReadString('\n')
 		if err == io.EOF {
 			log.Println("EndOfFile")
@@ -43,13 +43,19 @@ func main() {
 		if len(cmd) >= PROCS {
 			maxChunks = PROCS
 		}
+		chunkSize := len(cmd) / maxChunks
 
+		wg.Add(maxChunks)
 		for j := 0; j < maxChunks; j++ {
-			wg.Add(1)
+			from := j * chunkSize
+			to := (j + 1) * chunkSize
+			if j == maxChunks-1 {
+				to = len(cmd)
+			}
 			go func(cmd string, chunkId int) {
-				resultStorage.Store(chunkId, fms.PartialRun(cmd, chunkId == 0))
+				resultStorage.LoadOrStore(chunkId, fms.PartialRun(cmd, chunkId == 0))
 				wg.Done()
-			}(cmd[j*len(cmd)/maxChunks:(j+1)*len(cmd)/maxChunks], j)
+			}(cmd[from:to], j)
 		}
 
 		wg.Wait()
@@ -58,13 +64,14 @@ func main() {
 		state := states.GetStartState()
 		for j := 0; j < maxChunks; j++ {
 			chunkResult, _ := resultStorage.Load(j)
+
 			newState, ok := chunkResult.(storage.Data)[state]
 			if !ok {
-				state = states.Error{}
+				state = states.GetErrorState()
 				break
 			}
 			state = newState
 		}
-		log.Printf("%s => %t", cmd, state.IsFinal())
+		log.Printf("%d => %s : %t", i, states.GetStateName(state), state.IsFinal())
 	}
 }
