@@ -8,17 +8,14 @@ import (
 	"io"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 )
 
-const PROCS = 10
+const ChunksCount = 10
 
 func main() {
-	runtime.GOMAXPROCS(PROCS) // control amount of procs. default - # of logical processor you have.
-
-	data, err := os.Open("test.txt")
+	data, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -39,10 +36,8 @@ func main() {
 		var wg sync.WaitGroup
 
 		var resultStorage sync.Map
-		maxChunks := 1
-		if len(cmd) >= PROCS {
-			maxChunks = PROCS
-		}
+
+		maxChunks := getMaxChunks(len(cmd))
 		chunkSize := len(cmd) / maxChunks
 
 		wg.Add(maxChunks)
@@ -74,4 +69,15 @@ func main() {
 		}
 		log.Printf("%d => %s : %t", i, states.GetStateName(state), state.IsFinal())
 	}
+}
+
+func getMaxChunks(cmdLen int) int {
+	maxChunks := 1
+	if cmdLen >= ChunksCount {
+		maxChunks = ChunksCount
+	}
+	if cmdLen >= ChunksCount*20 {
+		maxChunks = ChunksCount * 2
+	}
+	return maxChunks
 }
